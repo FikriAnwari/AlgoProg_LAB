@@ -11,9 +11,12 @@ struct Items{
     char sub_kategori[30];
     char metode_saji[30];
     int harga;
+    int harga_total;
     int stok;
     char kode[10];
+    int porsi;
 };
+
 
 void baca_per_baris_items(struct Items *item, FILE *file){
 
@@ -156,6 +159,20 @@ int cek_alfabet_dan_numeric(char teks[], int panjang){
     return 1;
 }
 
+int cek_numeric(char teks[], int panjang){
+
+    int counter = 0;
+    for(int i =0; i < panjang; i++){
+        if(isdigit(teks[i]) != 0){
+            counter++;
+        }else{
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
 void teks_casting(char *teks, int panjang, char mode){
     if(mode == 'u'){
         for(int i =0; i < panjang; i++){
@@ -189,6 +206,195 @@ int cek_ada_dimenu_nama(struct Items items[], char teks[], int panjang){
     return counter;
 }
 
+void input_menu(struct Items items[], struct Items pesanan[], int jumlah_baris_file, int *loop){
+    char menu[9999];
+    char porsi[9999];
+
+
+    for(int i = 0; i < *loop; i++){
+
+        while(1){
+
+            printf("Menu(ketik Q untuk selesai) untuk i ke-%d:", i);
+            scanf("%[^\n]", menu); getchar();
+
+            if(menu[0] == 'q' || menu[0] == 'Q'){
+                strcpy(menu, "");
+                strcpy(porsi, "0");
+
+                /*ini untuk merubah ukuran array secara dinamis jika input tidak sampai 
+                20 kali maka ukuran arraynya si *loop/jumlah_pesanan akan diubah menjadi
+                terkhir kali loop + 1*/ 
+
+                *loop = i;
+                return;
+            }
+
+            if(cek_alfabet_dan_numeric(menu, strlen(menu)) == 1){
+
+                if(cek_ada_dimenu_nama(items, menu, jumlah_baris_file) != 0){
+                    
+                    while(1){
+    
+                        printf("Porsi:");
+                        scanf("%[^\n]", porsi); getchar();
+    
+                        if(cek_numeric(porsi, strlen(porsi)) == 1){
+    
+                            // printf("Menu: %s x %s\n\n", menu, porsi);
+    
+                            break;
+                        }else{
+                            printf("(Input hanya berupa Numeric)\n");
+                            strcpy(porsi, "");
+                        }
+                    }
+                break;
+                }else{
+                    printf("(Tidak ada dimenu)\n");
+                    strcpy(menu, "");
+                }
+
+            
+            }else{
+                printf("(Input hanya boleh berupa Alfabet/Numeric/Spasi)\n");
+                strcpy(menu, "");
+            }
+        
+
+        }
+        strcpy(pesanan[i].nama, menu);
+        pesanan[i].porsi = atoi(porsi);
+    }
+}
+
+void add_harga_pesanan_dari_porsi(struct Items items[], int jumlah_baris_file, struct Items pesanan[], int jumlah_pesanan){
+    char str_pesanan[9999];
+    char str_items[9999];
+
+    for(int i =0; i < jumlah_pesanan; i++){
+        strcpy(str_pesanan, pesanan[i].nama);
+        teks_casting(str_pesanan, strlen(str_pesanan), 'l');
+
+        for(int j = 0; j < jumlah_baris_file; j++){
+            strcpy(str_items, items[j].nama);
+            teks_casting(str_items, strlen(str_items), 'l');
+
+            if(strcmp(str_pesanan, str_items) == 0){
+                pesanan[i].harga = items[j].harga;
+                pesanan[i].harga_total = items[j].harga * pesanan[i].porsi;
+            }
+        }
+    }
+}
+
+void hapus_pesanan_per_baris(struct Items pesanan[], int *panjang, int index){
+
+    struct Items pesanan_baru[*panjang-1];
+
+    if(index < 0 || index >= *panjang){
+        printf("Index tidak valid\n");
+        return;
+    }
+
+    if(index == *panjang - 1){//khusus untuk elemen terakhir
+        (*panjang)--;
+        return;
+    }
+
+    for(int i = 0; i < *panjang - 1; i++){
+        if(i >= index){
+            pesanan_baru[i] = pesanan[i+1];
+            
+        }else{
+            pesanan_baru[i] = pesanan[i];
+        }
+    }
+
+    *panjang = *panjang - 1;
+
+    for(int i = 0; i < *panjang; i++){
+        pesanan[i] = pesanan_baru[i];
+    }
+}
+
+void hapus_pesanan(struct Items pesanan[], int *jumlah_pesanan){
+
+    system("cls");
+    for(int i = 0; i < *jumlah_pesanan; i++){
+        printf("%d. %s x %d = Rp%d\n", (i+1),pesanan[i].nama, pesanan[i].porsi, pesanan[i].harga_total);
+    }
+
+    char str_pilihan[99];
+    while(1){
+        printf("pilih(ketik Q untuk cancel):");
+        scanf("%s", str_pilihan);
+
+        //back
+        if(str_pilihan[0] == 'q' || str_pilihan[0] == 'Q'){
+            return;
+        }
+
+        int pilihan = atoi(str_pilihan);
+        if(pilihan >= 1 && pilihan <= (*jumlah_pesanan)){
+            hapus_pesanan_per_baris(pesanan, jumlah_pesanan, pilihan-1);
+            break;
+        }else{
+            printf("Input hanya berupa angka 1-%d\n", (*jumlah_pesanan));
+        }
+    }
+}
+
+void edit_hapus_pesanan(struct Items pesanan[], int *jumlah_pesanan){
+    
+    char str_input[99];
+    
+    while(1){
+        system("cls");
+        printf("\n");
+        printf("Pesanan Anda:\n");
+        int total_pembayaran = 0;
+        for(int i= 0; i < *jumlah_pesanan; i++){
+            printf("%d. %s x %d = Rp%d\n", i+1, pesanan[i].nama, pesanan[i].porsi, pesanan[i].harga_total);
+            total_pembayaran += pesanan[i].harga_total;
+        }
+        printf("TOTAL: Rp%d\n", total_pembayaran);
+        printf("\n");
+        printf("(1)Hapus 1 pesanan\n");
+        printf("(2)Ubah pesanan\n");
+        printf("(3)Tambah 1 pesanan\n");
+        printf("(4)Konfirmasi pesanan\n");
+        printf("pilih:");
+        scanf("%s", str_input);
+        
+        int input = atoi(str_input);
+
+        if(input >= 1 && input <= 4){
+            if(input == 1){
+                char hapus_input[99];
+                //hapus
+                hapus_pesanan(pesanan, jumlah_pesanan);
+                continue;
+            }else if(input == 2){
+                //ubah 1
+                printf("UBAH\n");
+                continue;
+            }else if(input == 3){
+                printf("TAMBAH\n");
+                continue;;
+            }else if(input == 4){
+                printf("KONFIRMASI\n");
+                break;
+            }else{
+                printf("Input hanya berupa angka 1-3\n");
+            }
+        }else{
+            printf("Input hanya berupa angka 1-3\n");
+        }
+    }
+
+}
+
 
 int main(){
 
@@ -199,6 +405,10 @@ int main(){
 
     int jumlah_baris_file = jumlah_baris(fp);
     struct Items items[jumlah_baris_file];
+    
+    int jumlah_pesanan = 5;
+    struct Items dibeli[jumlah_pesanan];
+
 
     isi_items(items, fp, jumlah_baris_file);
 
@@ -214,20 +424,29 @@ int main(){
 
     printf("Silahkan masukkan menu yang di pilih dengan mengetikan No / Nama / Kode:\n");
     
-    char menu[9999];
-    int porsi;
+    input_menu(items, dibeli, jumlah_baris_file, &jumlah_pesanan);
+    printf("\n");
+    // for(int i =0; i < jumlah_pesanan; i++){
+    //     printf("%s * %d\n", dibeli[i].nama, dibeli[i].porsi);
+    // }
+    add_harga_pesanan_dari_porsi(items, jumlah_baris_file, dibeli, jumlah_pesanan);
+    printf("\n");
+    // for(int i =0; i < jumlah_pesanan; i++){
+    //     printf("%s x %d = Rp%d\n", dibeli[i].nama, dibeli[i].porsi, dibeli[i].harga_total);
+    // }
+    edit_hapus_pesanan(dibeli, &jumlah_pesanan);
 
-        while(1){
-            printf("Menu(ketik Q untuk selesai):");
-            scanf("%[^\n]", menu); getchar();
-            if(cek_alfabet_dan_numeric(menu, strlen(menu)) == 1){
-                printf("aman\nmenu:%s", menu);
-                break;
-            }else{
-                printf("(Input hanya boleh berupa Alfabet/Numeric/Spasi)\n");
-            }
-        }
+    printf("\n");
+    for(int i =0; i < jumlah_pesanan; i++){
+        printf("%s x %d = Rp%d\n", dibeli[i].nama, dibeli[i].porsi, dibeli[i].harga_total);
+    }
+    
 
+
+    // //konfirmasi
+    // printf("Pastikan menu yang anda pesan sudah sesuai\n");
+    // printf("(1)Konfirmasi pesanan\n");
+    // printf("(2)Edit kembali pesanan\n");
     
     
 
