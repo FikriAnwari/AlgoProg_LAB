@@ -239,13 +239,13 @@ void input_menu(struct Items items[], struct Items pesanan[], int jumlah_baris_f
                         printf("Porsi:");
                         scanf("%[^\n]", porsi); getchar();
     
-                        if(cek_numeric(porsi, strlen(porsi)) == 1){
+                        if(cek_numeric(porsi, strlen(porsi)) == 1 && atoi(porsi) >= 1){
     
                             // printf("Menu: %s x %s\n\n", menu, porsi);
     
                             break;
                         }else{
-                            printf("(Input hanya berupa Numeric)\n");
+                            printf("(Input hanya berupa Numeric (1-9))\n");
                             strcpy(porsi, "");
                         }
                     }
@@ -293,7 +293,7 @@ void hapus_pesanan_per_baris(struct Items pesanan[], int *panjang, int index){
     struct Items pesanan_baru[*panjang-1];
 
     if(index < 0 || index >= *panjang){
-        printf("Index tidak valid\n");
+        printf("Pilihan tidak valid\n");
         return;
     }
 
@@ -328,7 +328,8 @@ void hapus_pesanan(struct Items pesanan[], int *jumlah_pesanan){
     char str_pilihan[99];
     while(1){
         printf("pilih(ketik Q untuk cancel):");
-        scanf("%s", str_pilihan);
+        fgets(str_pilihan, sizeof(str_pilihan), stdin);
+        str_pilihan[strcspn(str_pilihan, "\n")] = '\0';
 
         //back
         if(str_pilihan[0] == 'q' || str_pilihan[0] == 'Q'){
@@ -345,7 +346,172 @@ void hapus_pesanan(struct Items pesanan[], int *jumlah_pesanan){
     }
 }
 
-void edit_hapus_pesanan(struct Items pesanan[], int *jumlah_pesanan){
+void ubah_pesanan_per_baris(struct Items items[], int jumlah_baris_file, struct Items pesanan[], int *jumlah_pesanan, int index){
+    struct Items pesanan_baru[*jumlah_pesanan];
+
+    if(index < 0 || index >= *jumlah_pesanan){
+        printf("Pilihan tidak valid\n");
+        return;
+    }
+
+    system("cls");
+    printf("Merubah Pesanan\n");
+    printf("%s x %d = Rp%d\n", pesanan[index].nama, pesanan[index].porsi, pesanan[index].harga_total);
+
+    char nama_sebelum[9999];
+    strcpy(nama_sebelum, pesanan[index].nama);
+    int porsi_sebelum = pesanan[index].porsi;
+    int harga_total_sebelum = pesanan[index].harga_total;
+
+    char str_nama[9999];
+    char str_porsi[9999];
+    while(1){
+        printf("Nama(ketik Q untuk cancel):");
+        fgets(str_nama, sizeof(str_nama), stdin);
+        str_nama[strcspn(str_nama, "\n")] = '\0';
+        //back
+        if(str_nama[0] == 'q' || str_nama[0] == 'Q'){
+            strcpy(pesanan[index].nama, nama_sebelum);
+            pesanan[index].porsi = porsi_sebelum;
+            pesanan[index].harga_total = harga_total_sebelum;
+            return;
+        }
+
+        if(cek_ada_dimenu_nama(items, str_nama, jumlah_baris_file) != 0){
+            strcpy(pesanan[index].nama, str_nama);
+
+            for(int i = 0; i < jumlah_baris_file; i++){
+                char str_nama_temp[9999];
+                char str_items_nama_temp[9999];
+                strcpy(str_nama_temp, str_nama);
+                strcpy(str_items_nama_temp, items[i].nama);
+                teks_casting(str_nama_temp, strlen(str_nama_temp), 'l');
+                teks_casting(str_items_nama_temp, strlen(str_items_nama_temp), 'l');
+
+                if(strcmp(str_nama_temp, str_items_nama_temp) == 0){
+                    pesanan[index].harga = items[i].harga;
+                }
+            }
+
+            printf("Porsi(ketik Q untuk cancel):");
+            fgets(str_porsi, sizeof(str_porsi), stdin);
+            str_porsi[strcspn(str_porsi, "\n")] = '\0';
+    
+            //back
+            if(str_porsi[0] == 'q' || str_porsi[0] == 'Q'){
+                strcpy(pesanan[index].nama, nama_sebelum);
+                pesanan[index].porsi = porsi_sebelum;
+                pesanan[index].harga_total = harga_total_sebelum;
+                return;
+            }
+    
+            if(cek_numeric(str_porsi, strlen(str_porsi)) == 1 && atoi(str_porsi) >= 1){
+                int porsi = atoi(str_porsi);
+                pesanan[index].porsi = porsi;
+                pesanan[index].harga_total = porsi * pesanan[index].harga;
+                return;
+            }else{
+                printf("(Input hanya berupa Numeric)\n");
+                continue;
+            }
+
+        }else{
+            printf("(Pilihan mu tidak ada di menu)\n");
+            continue;
+        }
+
+    }
+}
+
+void ubah_pesanan(struct Items items[], int jumlah_baris_file, struct Items pesanan[], int *jumlah_pesanan){
+    
+    system("cls");
+    for(int i = 0; i < *jumlah_pesanan; i++){
+        printf("%d. %s x %d = Rp%d\n", (i+1),pesanan[i].nama, pesanan[i].porsi, pesanan[i].harga_total);
+    }
+
+    char str_pilihan[99];
+    while(1){   
+        printf("pilih(ketik Q untuk cancel):");
+        fgets(str_pilihan, sizeof(str_pilihan), stdin);
+        str_pilihan[strcspn(str_pilihan, "\n")] = '\0';
+
+        //back
+        if(str_pilihan[0] == 'q' || str_pilihan[0] == 'Q'){
+            return;
+        }
+
+        int pilihan = atoi(str_pilihan);
+        if(pilihan >= 1 && pilihan <= (*jumlah_pesanan)){
+            ubah_pesanan_per_baris(items, jumlah_baris_file, pesanan, jumlah_pesanan, pilihan-1);
+            break;
+        }else{
+            printf("Input hanya berupa angka 1-%d\n", (*jumlah_pesanan));
+            strcpy(str_pilihan, "");
+            continue;
+        }
+    }
+
+}
+
+void tambah_pesanan(struct Items items[], int jumlah_baris_file, struct Items pesanan[], int *jumlah_pesanan){
+    
+    system("cls");
+    for(int i = 0; i < *jumlah_pesanan; i++){
+        printf("%d. %s x %d = Rp%d\n", (i+1),pesanan[i].nama, pesanan[i].porsi, pesanan[i].harga_total);
+    }
+
+    char str_nama[9999];
+    char str_porsi[9999];
+    while(1){
+        printf("Nama(ketik Q untuk cancel):");
+        fgets(str_nama, sizeof(str_nama), stdin);
+        str_nama[strcspn(str_nama, "\n")] = '\0';
+        
+        if(str_nama[0] == 'q' || str_nama[0] == 'Q'){
+            return;
+        }
+        
+        if(cek_ada_dimenu_nama(items, str_nama, jumlah_baris_file) != 0){
+            
+            printf("Porsi(ketik Q untuk cancel):");
+            fgets(str_porsi, sizeof(str_porsi), stdin);
+            str_porsi[strcspn(str_porsi, "\n")] = '\0';
+            int porsi = atoi(str_porsi);
+
+            if(cek_numeric(str_porsi, strlen(str_porsi)) == 1 && porsi >= 1){
+
+                (*jumlah_pesanan)++;
+                strcpy(pesanan[*jumlah_pesanan-1].nama, str_nama);
+                pesanan[*jumlah_pesanan-1].porsi = porsi;
+
+                for(int i = 0; i < jumlah_baris_file; i++){
+                    char str_nama_temp[9999];
+                    char str_items_nama_temp[9999];
+                    strcpy(str_nama_temp, str_nama);
+                    strcpy(str_items_nama_temp, items[i].nama);
+                    teks_casting(str_nama_temp, strlen(str_nama_temp), 'l');
+                    teks_casting(str_items_nama_temp, strlen(str_items_nama_temp), 'l');
+
+                    if(strcmp(str_nama_temp, str_items_nama_temp) == 0){
+                        pesanan[*jumlah_pesanan-1].harga = items[i].harga;
+                    }
+
+                    return;
+                }
+            }else{
+                printf("(Input hanya berupa Numeric)\n");
+                continue;
+            }
+
+        }else{
+            printf("(Pilihan mu tidak ada di menu)\n");
+            continue;
+        }
+    }
+}
+
+void edit_hapus_konfirmasi_pesanan(struct Items items[], int jumlah_baris_file, struct Items pesanan[], int *jumlah_pesanan){
     
     char str_input[99];
     
@@ -365,31 +531,30 @@ void edit_hapus_pesanan(struct Items pesanan[], int *jumlah_pesanan){
         printf("(3)Tambah 1 pesanan\n");
         printf("(4)Konfirmasi pesanan\n");
         printf("pilih:");
-        scanf("%s", str_input);
+        fgets(str_input, sizeof(str_input), stdin);
+        str_input[strcspn(str_input, "\n")] = '\0';
         
         int input = atoi(str_input);
 
         if(input >= 1 && input <= 4){
             if(input == 1){
                 char hapus_input[99];
-                //hapus
                 hapus_pesanan(pesanan, jumlah_pesanan);
                 continue;
             }else if(input == 2){
-                //ubah 1
-                printf("UBAH\n");
+                ubah_pesanan(items, jumlah_baris_file, pesanan, jumlah_pesanan);
                 continue;
             }else if(input == 3){
-                printf("TAMBAH\n");
+                tambah_pesanan(items, jumlah_baris_file, pesanan, jumlah_pesanan);
                 continue;;
             }else if(input == 4){
                 printf("KONFIRMASI\n");
                 break;
             }else{
-                printf("Input hanya berupa angka 1-3\n");
+                printf("Input hanya berupa angka 1-4\n");
             }
         }else{
-            printf("Input hanya berupa angka 1-3\n");
+            printf("Input hanya berupa angka 1-4\n");
         }
     }
 
@@ -434,7 +599,7 @@ int main(){
     // for(int i =0; i < jumlah_pesanan; i++){
     //     printf("%s x %d = Rp%d\n", dibeli[i].nama, dibeli[i].porsi, dibeli[i].harga_total);
     // }
-    edit_hapus_pesanan(dibeli, &jumlah_pesanan);
+    edit_hapus_konfirmasi_pesanan(items, jumlah_baris_file, dibeli, &jumlah_pesanan);
 
     printf("\n");
     for(int i =0; i < jumlah_pesanan; i++){
