@@ -1,7 +1,8 @@
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
-#include<ctype.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <time.h>
 
 struct Items{
     int no;
@@ -47,7 +48,7 @@ int jumlah_baris(FILE *file){
 void isi_items(struct Items *items, FILE *file, int jumlah_baris){
     skip_baris(file);
     
-    for(int i = 0; i < jumlah_baris - 1; i++){
+    for(int i = 0; i < jumlah_baris; i++){
         baca_per_baris_items(&items[i], file);
     }
 }
@@ -104,7 +105,7 @@ void cetak_items(struct Items items[], int jumlah, char *label){
     printf("+\n");
 
     //cetak itemsnya
-    for(int i = 0; i < jumlah -1; i++){
+    for(int i = 0; i < jumlah; i++){
         if(strcmp(label, items[i].jenis) == 0){
             printf("|%-*d|%-*s|%-*d|\n", 
             no+space_between,items[i].no, 
@@ -216,7 +217,8 @@ void input_menu(struct Items items[], struct Items pesanan[], int jumlah_baris_f
         while(1){
 
             printf("Menu(ketik Q untuk selesai) untuk i ke-%d:", i);
-            scanf("%[^\n]", menu); getchar();
+            fgets(menu, sizeof(menu), stdin);
+            menu[strcspn(menu, "\n")] = '\0';
 
             if(menu[0] == 'q' || menu[0] == 'Q'){
                 strcpy(menu, "");
@@ -237,15 +239,16 @@ void input_menu(struct Items items[], struct Items pesanan[], int jumlah_baris_f
                     while(1){
     
                         printf("Porsi:");
-                        scanf("%[^\n]", porsi); getchar();
+                        fgets(porsi, sizeof(porsi), stdin);
+                        porsi[strcspn(porsi, "\n")] = '\0';
     
-                        if(cek_numeric(porsi, strlen(porsi)) == 1 && atoi(porsi) >= 1){
+                        if(cek_numeric(porsi, strlen(porsi)) == 1 && atoi(porsi) >= 1 && atoi(porsi) <= 100){
     
                             // printf("Menu: %s x %s\n\n", menu, porsi);
     
                             break;
                         }else{
-                            printf("(Input hanya berupa Numeric (1-9))\n");
+                            printf("(Input hanya berupa Numeric (1-9) maks=100)\n");
                             strcpy(porsi, "");
                         }
                     }
@@ -405,13 +408,13 @@ void ubah_pesanan_per_baris(struct Items items[], int jumlah_baris_file, struct 
                 return;
             }
     
-            if(cek_numeric(str_porsi, strlen(str_porsi)) == 1 && atoi(str_porsi) >= 1){
+            if(cek_numeric(str_porsi, strlen(str_porsi)) == 1 && atoi(str_porsi) >= 1 && atoi(str_porsi) <= 100){
                 int porsi = atoi(str_porsi);
                 pesanan[index].porsi = porsi;
                 pesanan[index].harga_total = porsi * pesanan[index].harga;
                 return;
             }else{
-                printf("(Input hanya berupa Numeric)\n");
+                printf("(Input hanya berupa Numeric maks=100)\n");
                 continue;
             }
 
@@ -426,6 +429,11 @@ void ubah_pesanan_per_baris(struct Items items[], int jumlah_baris_file, struct 
 void ubah_pesanan(struct Items items[], int jumlah_baris_file, struct Items pesanan[], int *jumlah_pesanan){
     
     system("cls");
+    cetak_items(items, jumlah_baris_file, "Makanan");
+    printf("\n");
+    cetak_items(items, jumlah_baris_file, "Minuman");
+    printf("\n");
+    printf("==MENGUBAH PESANAN==\n");
     for(int i = 0; i < *jumlah_pesanan; i++){
         printf("%d. %s x %d = Rp%d\n", (i+1),pesanan[i].nama, pesanan[i].porsi, pesanan[i].harga_total);
     }
@@ -457,17 +465,23 @@ void ubah_pesanan(struct Items items[], int jumlah_baris_file, struct Items pesa
 void tambah_pesanan(struct Items items[], int jumlah_baris_file, struct Items pesanan[], int *jumlah_pesanan){
     
     system("cls");
+    cetak_items(items, jumlah_baris_file, "Makanan");
+    printf("\n");
+    cetak_items(items, jumlah_baris_file, "Minuman");
+    printf("\n");
+    printf("==MENAMBAH PESANAN==\n");
     for(int i = 0; i < *jumlah_pesanan; i++){
         printf("%d. %s x %d = Rp%d\n", (i+1),pesanan[i].nama, pesanan[i].porsi, pesanan[i].harga_total);
     }
 
     char str_nama[9999];
-    char str_porsi[9999];
+    char str_porsi[99];
     while(1){
         printf("Nama(ketik Q untuk cancel):");
         fgets(str_nama, sizeof(str_nama), stdin);
         str_nama[strcspn(str_nama, "\n")] = '\0';
         
+        //back
         if(str_nama[0] == 'q' || str_nama[0] == 'Q'){
             return;
         }
@@ -477,6 +491,12 @@ void tambah_pesanan(struct Items items[], int jumlah_baris_file, struct Items pe
             printf("Porsi(ketik Q untuk cancel):");
             fgets(str_porsi, sizeof(str_porsi), stdin);
             str_porsi[strcspn(str_porsi, "\n")] = '\0';
+
+            //back
+            if(str_porsi[0] == 'q' || str_porsi[0] == 'Q'){
+                return;
+            }
+
             int porsi = atoi(str_porsi);
 
             if(cek_numeric(str_porsi, strlen(str_porsi)) == 1 && porsi >= 1){
@@ -511,7 +531,36 @@ void tambah_pesanan(struct Items items[], int jumlah_baris_file, struct Items pe
     }
 }
 
-void edit_hapus_konfirmasi_pesanan(struct Items items[], int jumlah_baris_file, struct Items pesanan[], int *jumlah_pesanan){
+void konfirmasi_pesanan(struct Items pesanan[], int jumlah_pesanan, char nama_file[], char kasir[]){
+
+    //proses file
+    FILE *fp = fopen(nama_file, "a");
+    if(fp == NULL){
+        printf("Gagal membuka file\n");
+        return;
+    }
+
+    //untuk waktu
+    time_t rawtime;
+    struct tm *timeinfo;
+
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+
+    char waktu[999];
+    strcpy(waktu, asctime(timeinfo));
+    waktu[strcspn(waktu, "\n")] = '\0';
+
+    //cetak ke file
+    for(int i = 0; i < jumlah_pesanan; i++){
+        fprintf(fp, "%d\t%s\t%d\t%d\t%s\t%s\t%d\n", i+1, pesanan[i].nama, pesanan[i].porsi, pesanan[i].harga_total, waktu, kasir, i);
+    }
+
+    fclose(fp);
+    memset(pesanan, 0, jumlah_pesanan * sizeof(pesanan[0]));
+}
+
+void edit_hapus_konfirmasi_pesanan(struct Items items[], int jumlah_baris_file, struct Items pesanan[], int *jumlah_pesanan, char kasir[]){
     
     char str_input[99];
     
@@ -530,9 +579,14 @@ void edit_hapus_konfirmasi_pesanan(struct Items items[], int jumlah_baris_file, 
         printf("(2)Ubah pesanan\n");
         printf("(3)Tambah 1 pesanan\n");
         printf("(4)Konfirmasi pesanan\n");
-        printf("pilih:");
+        printf("pilih(Q untuk kembali):");
         fgets(str_input, sizeof(str_input), stdin);
         str_input[strcspn(str_input, "\n")] = '\0';
+
+        //back
+        if(str_input[0] == 'q' || str_input[0] == 'Q'){
+            return;
+        }
         
         int input = atoi(str_input);
 
@@ -546,15 +600,204 @@ void edit_hapus_konfirmasi_pesanan(struct Items items[], int jumlah_baris_file, 
                 continue;
             }else if(input == 3){
                 tambah_pesanan(items, jumlah_baris_file, pesanan, jumlah_pesanan);
-                continue;;
+                continue;
             }else if(input == 4){
-                printf("KONFIRMASI\n");
+                konfirmasi_pesanan(pesanan, *jumlah_pesanan, "record_menu.csv", kasir);
                 break;
             }else{
-                printf("Input hanya berupa angka 1-4\n");
+                printf("(Input hanya berupa angka 1-4)\n");
             }
         }else{
-            printf("Input hanya berupa angka 1-4\n");
+            printf("(Input hanya berupa angka 1-4)\n");
+        }
+    }
+
+}
+
+void urutkan_menu(struct Items items[], int jumlah_baris_file, char tipe, char urutan){
+
+    if(tipe == 'a' || tipe == 'A'){
+        if(urutan == 'a' || urutan == 'A'){
+
+            for(int i = 0; i < jumlah_baris_file - 1; i++){
+                    for(int j = i+1; j < jumlah_baris_file; j++){
+                        if(strcasecmp(items[j].nama, items[i].nama) < 0) {
+                            struct Items temp = items[i];
+                            items[i] = items[j];
+                            items[j] = temp;
+                        }
+                    }
+                }
+
+        }else if(urutan == 'd' || urutan == 'D'){
+            for(int i = 0; i < jumlah_baris_file - 1; i++){
+                    for(int j = i+1; j < jumlah_baris_file; j++){
+                        if(strcasecmp(items[j].nama, items[i].nama) < 0) {
+                            struct Items temp = items[i];
+                            items[i] = items[j];
+                            items[j] = temp;
+                        }
+                    }
+                }
+        }
+    }else if(tipe == 'h' || tipe == 'H'){
+        if(urutan == 'a' || urutan == 'A'){
+
+            for(int i = 0; i < jumlah_baris_file - 1; i++){
+                    for(int j = i+1; j < jumlah_baris_file; j++){
+                        if(items[j].harga < items[i].harga) {
+                            struct Items temp = items[i];
+                            items[i] = items[j];
+                            items[j] = temp;
+                        }
+                    }
+                }
+
+        }else if(urutan == 'd' || urutan == 'D'){
+            for(int i = 0; i < jumlah_baris_file - 1; i++){
+                    for(int j = i+1; j < jumlah_baris_file; j++){
+                        if(items[j].harga > items[i].harga) {
+                            struct Items temp = items[i];
+                            items[i] = items[j];
+                            items[j] = temp;
+                        }
+                    }
+                }
+        }
+    }else if(tipe == 'n' || tipe == 'N'){
+        if(urutan == 'a' || urutan == 'A'){
+
+            for(int i = 0; i < jumlah_baris_file - 1; i++){
+                    for(int j = i+1; j < jumlah_baris_file; j++){
+                        if(items[j].no < items[i].no) {
+                            struct Items temp = items[i];
+                            items[i] = items[j];
+                            items[j] = temp;
+                        }
+                    }
+                }
+
+        }else if(urutan == 'd' || urutan == 'D'){
+            for(int i = 0; i < jumlah_baris_file - 1; i++){
+                    for(int j = i+1; j < jumlah_baris_file; j++){
+                        if(items[j].no > items[i].no) {
+                            struct Items temp = items[i];
+                            items[i] = items[j];
+                            items[j] = temp;
+                        }
+                    }
+                }
+        }
+    }else{
+        printf("(Input salah! pilih 'h' untuk harga, 'a' untuk alfabet, 'n' untuk nomor)\n");
+        printf("(Lalu pilih 'a' untuk ascending, pilih 'd' untuk descending)\n");
+        return;
+    }
+}
+
+void input_urutkan_menu(struct Items items[], int jumlah_baris_file){
+    
+    char tipe;
+    char urutan;
+    while(1){
+        printf("Urutkan berdasarkan harga/alfabet/no (h/a/n) (Q untuk kembali):");
+        scanf(" %c", &tipe);
+
+        //back
+        if(tipe == 'q' || tipe == 'Q'){
+            return;
+        }
+        
+        if(tipe == 'h' || tipe == 'H' || tipe == 'a' || tipe == 'A' || tipe == 'n' || tipe == 'N'){
+            printf("Pilih ascending/descending (a/d):");
+            scanf(" %c", &urutan);
+
+            //back
+            if(urutan == 'q' || urutan == 'Q'){
+                return;
+            }
+
+            if(urutan == 'd' || urutan == 'D' || urutan == 'a' || urutan == 'A'){
+                urutkan_menu(items, jumlah_baris_file, tipe, urutan);
+                return;
+            }else{
+                printf("(Input salah! pilih 'a' untuk ascending, pilih 'd' untuk descending)\n");
+                continue;
+            }
+        }else{
+            printf("(Input salah! pilih 'h' untuk harga, 'a' untuk alfabet, 'n' untuk nomor)\n");
+            continue;
+        }
+    }
+}
+
+void cari_teks(char cari[], char teks[]){
+    int panjang_cari = strlen(cari);
+    int panjang_teks = strlen(teks);
+
+    int counter = 0;
+
+    for(int i = 0; i < panjang_teks; i++){
+        
+        if(teks[i] == cari[0]){
+            for(int j = 0; j < panjang_cari; j++){
+                if(teks[i + j] == cari[j]){
+                    counter++;
+                }
+            }
+
+        }
+    }
+
+    return counter;
+}
+
+void cari_pesanan(struct Items items[], int jumlah_baris_file, struct Items target[], int *panjang_target, char input[]){
+    for(int i = 0; i < jumlah_baris_file; i++){
+        char harga_temp[99];
+        sprintf(harga_temp, "%d", items[i].harga);
+
+        if(strcasecmp(input, items[i].nama) == 0){
+            target[i] = items[i];
+            *panjang_target = i;
+        }else if(strcasecmp(input, harga_temp) == 0){
+            target[i] = items[i];
+            *panjang_target = i;
+        }else if(strcasecmp(input, items[i].kode) == 0){
+            target[i] = items[i];
+            *panjang_target = i;
+        }else if(strcasestr(items[i].nama, input) != NULL){
+            target[i] = items[i];
+            *panjang_target = i;
+        }else{
+            printf("Tidak Ditemukan\n");
+        }
+    }
+}
+
+void input_cari_pesanan(struct Items items[], int jumlah_baris_file){
+    char input[99];
+
+    while(1){
+        printf("Cari(Q untuk cancel/kembali):");
+        fgets(input, sizeof(input), stdin);
+        input[strcspn(input, "\n")] = '\0';
+    
+        //back
+        if(input[0] == 'q' || input[0] == 'Q'){
+            return;
+        }
+    
+        int panjang_target = 100;
+        struct Items target[panjang_target];
+    
+        if(cek_alfabet_dan_numeric(input, strlen(input)) == 1){
+            cari_pesanan(items, jumlah_baris_file, target, &panjang_target, input);
+            cetak_items(target, panjang_target, "Makanan");
+            cetak_items(target, panjang_target, "Minuman");
+        }else{
+            printf("(Input hanya boleh berupa Alfabet/Numeric/Spasi)\n");
+            continue;
         }
     }
 
@@ -569,52 +812,80 @@ int main(){
     }
 
     int jumlah_baris_file = jumlah_baris(fp);
+    jumlah_baris_file -= 1;
     struct Items items[jumlah_baris_file];
     
     int jumlah_pesanan = 5;
     struct Items dibeli[jumlah_pesanan];
 
-
+    //proses memasukan data dari file ke program
     isi_items(items, fp, jumlah_baris_file);
+    fclose(fp);
 
-    cetak_items(items, jumlah_baris_file, "Makanan");
-    printf("\n");
-    cetak_items(items, jumlah_baris_file, "Minuman");
+    //Menu Dibagian Pembelian
 
-    // printf("(1) Pesan menu\n");
-    // printf("(2) Cari di menu\n");
+    while(1){
+        char str_input[3];
+        system("cls");
 
-    // int pilihan_menu;
-    // scanf("%d", &pilihan_menu);
+        //mencetak menu
+        cetak_items(items, jumlah_baris_file, "Makanan");
+        printf("\n");
+        cetak_items(items, jumlah_baris_file, "Minuman");
 
-    printf("Silahkan masukkan menu yang di pilih dengan mengetikan No / Nama / Kode:\n");
+        printf("(1)Urutkan Menu\n");
+        printf("(2)Cari Menu\n");
+        printf("(3)Buat Pesanan\n");
+        printf("(4)Ubah/Hapus/Konfirmasi Pesanan\n");
+
+        // printf("Jumlah Baris = %d\n", jumlah_baris_file);
+        // for(int i = 0; i < jumlah_baris_file; i++){
+        //     printf("[%d] %s\n", items[i].no, items[i].nama);
+        // }
+        if(strcmp(dibeli[0].nama, "") != 0){
+            int h = 0;
+            printf("\n");
+            printf("==PESANAN ANDA==\n");
+            for(int i = 0; i < jumlah_pesanan; i++){
+                printf("%d. %s x %d = Rp%d\n", i+1, dibeli[i].nama, dibeli[i].porsi, dibeli[i].harga_total);
+                h += dibeli[i].harga_total;
+            }
+            printf("Total = Rp%d\n", h);
+            printf("Silahkan pilih 4 untuk konfirmasi\n");
+        }
+
+        printf("pilih:");
+        fgets(str_input, sizeof(str_input), stdin);
+        str_input[strcspn(str_input, "\n")] = '\0';
+        int input = atoi(str_input);
+
+        if(input >= 1 && input <= 4){
+            if(input == 1){
+                input_urutkan_menu(items, jumlah_baris_file);
+            }else if(input == 2){
+
+            }else if(input == 3){
+                printf("Silahkan masukkan menu yang di pilih dengan mengetikan No / Nama / Kode:\n");
+        
+                input_menu(items, dibeli, jumlah_baris_file, &jumlah_pesanan);
+                printf("\n");
+
+                add_harga_pesanan_dari_porsi(items, jumlah_baris_file, dibeli, jumlah_pesanan);
+                printf("\n");
+            }else if(input == 4){
+                edit_hapus_konfirmasi_pesanan(items, jumlah_baris_file, dibeli, &jumlah_pesanan, "Dinda Ayudinda");
+                printf("\n");
+                printf("==PESANAN ANDA==\n");
+                for(int i =0; i < jumlah_pesanan; i++){
+                    printf("%d. %s x %d = Rp%d\n", i+1, dibeli[i].nama, dibeli[i].porsi, dibeli[i].harga_total);
+                }
+            }
+        }else{
+            printf("(Input hanya berupa angka 1-4)\n");
+            continue;
+        }
+    }   
     
-    input_menu(items, dibeli, jumlah_baris_file, &jumlah_pesanan);
-    printf("\n");
-    // for(int i =0; i < jumlah_pesanan; i++){
-    //     printf("%s * %d\n", dibeli[i].nama, dibeli[i].porsi);
-    // }
-    add_harga_pesanan_dari_porsi(items, jumlah_baris_file, dibeli, jumlah_pesanan);
-    printf("\n");
-    // for(int i =0; i < jumlah_pesanan; i++){
-    //     printf("%s x %d = Rp%d\n", dibeli[i].nama, dibeli[i].porsi, dibeli[i].harga_total);
-    // }
-    edit_hapus_konfirmasi_pesanan(items, jumlah_baris_file, dibeli, &jumlah_pesanan);
-
-    printf("\n");
-    for(int i =0; i < jumlah_pesanan; i++){
-        printf("%s x %d = Rp%d\n", dibeli[i].nama, dibeli[i].porsi, dibeli[i].harga_total);
-    }
-    
-
-
-    // //konfirmasi
-    // printf("Pastikan menu yang anda pesan sudah sesuai\n");
-    // printf("(1)Konfirmasi pesanan\n");
-    // printf("(2)Edit kembali pesanan\n");
-    
-    
-
     getchar();
 
     return 0;
