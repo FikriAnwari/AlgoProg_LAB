@@ -919,6 +919,7 @@ void input_cari_pesanan(struct Items items[], int jumlah_baris_file){
 }
 
 void record_pembelian(FILE *file){
+    system("cls");
 
     // Cek apakah file kosong
     fseek(file, 0, SEEK_END);
@@ -963,9 +964,19 @@ void record_pembelian(FILE *file){
 
     fclose(file);
 
-    printf("[Enter] untuk kembali:\n");
-    getchar();
-    return;
+    while(1){
+    printf("\nQ untuk kembali, C untuk MENGHAPUS data Record:");
+    char input[2];
+    fgets(input, sizeof(input), stdin);
+
+        if(input[0] == 'q' || input[0] == 'Q'){
+            return;
+        }else if(input[0] == 'c' || input[0] == 'C'){
+            file = fopen("record_menu.csv", "w");
+            fclose(file);
+            return;
+        }
+    }
 
 }
 
