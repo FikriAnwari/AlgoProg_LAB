@@ -1,0 +1,52 @@
+no	nama	jenis	kategori	metode_saji	sub_kategori	harga	stok	kode
+1	Nasi Goreng	Makanan	Nasi	Goreng	Nasi Goreng	12000	100	NG001
+2	Nasi Goreng Sosis	Makanan	Nasi	Goreng	Nasi Goreng	14000	100	NG002
+3	Nasi Goreng Merah	Makanan	Nasi	Goreng	Nasi Goreng	14000	100	NG003
+4	Nasi Goreng Ayam	Makanan	Nasi	Goreng	Nasi Goreng	15000	100	NG004
+5	Nasi Goreng Telur	Makanan	Nasi	Goreng	Nasi Goreng	13000	100	NG005
+6	Nasi Goreng Sosis Telur	Makanan	Nasi	Goreng	Nasi Goreng	16000	100	NG006
+7	Nasi Fried Chicken Dada / Paha Atas	Makanan	Nasi	Goreng	Nasi Ayam	18000	100	NA001
+8	Nasi Fried Chicken Paha Bawah	Makanan	Nasi	Goreng	Nasi Ayam	16000	100	NA002
+9	Nasi Fried Chicken Sayap	Makanan	Nasi	Goreng	Nasi Ayam	14000	100	NA003
+10	Mie Goreng	Makanan	Mie	Goreng	Mie Goreng	12000	100	MG001
+11	Mie Goreng Sosis	Makanan	Mie	Goreng	Mie Goreng	14000	100	MG002
+12	Mie Goreng Merah	Makanan	Mie	Goreng	Mie Goreng	14000	100	MG003
+13	Mie Goreng Ayam	Makanan	Mie	Goreng	Mie Goreng	15000	100	MG004
+14	Mie Goreng Telur	Makanan	Mie	Goreng	Mie Goreng	13000	100	MG005
+15	Mie Goreng Sosis Telur	Makanan	Mie	Goreng	Mie Goreng	16000	100	MG006
+16	Kwetiaw Goreng	Makanan	Kwetiaw	Goreng	Kwetiaw Goreng	12000	100	KG001
+17	Kwetiaw Goreng Sosis	Makanan	Kwetiaw	Goreng	Kwetiaw Goreng	14000	100	KG002
+18	Kwetiaw Goreng Merah	Makanan	Kwetiaw	Goreng	Kwetiaw Goreng	14000	100	KG003
+19	Kwetiaw Goreng Ayam	Makanan	Kwetiaw	Goreng	Kwetiaw Goreng	15000	100	KG004
+20	Kwetiaw Goreng Telur	Makanan	Kwetiaw	Goreng	Kwetiaw Goreng	13000	100	KG005
+21	Kwetiaw Goreng Sosis Telur	Makanan	Kwetiaw	Goreng	Kwetiaw Goreng	16000	100	KG006
+22	Mie Kuah	Makanan	Mie	Kuah	Mie Kuah	12000	100	MK001
+23	Mie Kuah Sosis	Makanan	Mie	Kuah	Mie Kuah	14000	100	MK002
+24	Mie Kuah Merah	Makanan	Mie	Kuah	Mie Kuah	14000	100	MK003
+25	Mie Kuah Ayam	Makanan	Mie	Kuah	Mie Kuah	15000	100	MK004
+26	Mie Kuah Telur	Makanan	Mie	Kuah	Mie Kuah	13000	100	MK005
+27	Mie Kuah Sosis Telur	Makanan	Mie	Kuah	Mie Kuah	16000	100	MK006
+28	Kwetiaw Kuah	Makanan	Kwetiaw	Kuah	Kwetiaw Kuah	12000	100	KK001
+29	Kwetiaw Kuah Sosis	Makanan	Kwetiaw	Kuah	Kwetiaw Kuah	14000	100	KK002
+30	Kwetiaw Kuah Merah	Makanan	Kwetiaw	Kuah	Kwetiaw Kuah	14000	100	KK003
+31	Kwetiaw Kuah Ayam	Makanan	Kwetiaw	Kuah	Kwetiaw Kuah	15000	100	KK004
+32	Kwetiaw Kuah Telur	Makanan	Kwetiaw	Kuah	Kwetiaw Kuah	13000	100	KK005
+33	Kwetiaw Kuah Sosis Telur	Makanan	Kwetiaw	Kuah	Kwetiaw Kuah	16000	100	KK006
+34	Rice Ball Teriyaki	Makanan	Rice Ball	UNDIFINED	UNDIFINED	21000	100	RB001
+35	Rice Ball Chicken Katsu	Makanan	Rice Ball	UNDIFINED	UNDIFINED	23000	100	RB002
+36	Rice Ball Onigiri	Makanan	Rice Ball	UNDIFINED	UNDIFINED	20000	100	RB003
+37	Ayam Teriyaki	Dish	UNDIFINED	UNDIFINED	UNDIFINED	19000	100	DH001
+38	Chicken Katsu	Dish	UNDIFINED	UNDIFINED	UNDIFINED	20000	100	DH002
+39	French Fries	Dish	UNDIFINED	UNDIFINED	UNDIFINED	9000	100	DH003
+40	Jamur Crispy	Dish	UNDIFINED	UNDIFINED	UNDIFINED	9000	100	DH004
+41	Tahu Goreng	Dish	UNDIFINED	UNDIFINED	UNDIFINED	5000	100	DH005
+42	Air Mineral	Minuman	Air Mineral	Dingin	UNDIFINED	3000	100	AM001
+43	Air Mineral Hangat	Minuman	Air Mineral	Hangat	UNDIFINED	3000	100	AM002
+44	Teh Hangat	Minuman	Teh	Hangat	UNDIFINED	5000	100	TH001
+45	Es Teh	Minuman	Teh	Dingin	UNDIFINED	5000	100	TH002
+46	Es Campur	Minuman	Es Campur	Dingin	UNDIFINED	10000	100	ES001
+47	Milkshake Coklat	Minuman	Milkshake	Dingin	UNDIFINED	12000	100	MS001
+48	Milkshake Strawberry	Minuman	Milkshake	Dingin	UNDIFINED	12000	100	MS002
+49	Milkshake Vanilla	Minuman	Milkshake	Dingin	UNDIFINED	12000	100	MS003
+50	Kopi Susu Hangat	Minuman	Kopi	Hangat	UNDIFINED	9000	100	KP001
+51	Es Kopi Susu	Minuman	Kopi	Dingin	UNDIFINED	9000	100	KP002
