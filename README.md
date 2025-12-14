@@ -1,2 +1,2 @@
-# FINAL PROJEK LAB Alogtirtm and Programming
+# FINAL PROJEK LAB Alogrithm and Programming
 Kelompok Boboiboy Kuase Tiga
