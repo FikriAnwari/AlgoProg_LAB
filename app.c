@@ -1038,6 +1038,7 @@ void save() {
 }
 
 void tampil() {
+    system("cls");
     printf("\n%-12s %-10s %-12s %-12s %-12s %-20s\n",
            "Meja", "Kapasitas", "Tipe", "Ruangan", "Status", "Jadwal");
     for (int i = 0; i < total; i++) {
@@ -1057,7 +1058,26 @@ int cari(int meja) {
     return -1;
 }
 
+int cek_format_tanggal(char teks[]){
+    int year;
+    int month;
+    int day;
+    int hour;
+    int minute;
+
+    sscanf(teks, "%d-%d-%d %d:%d", &year, &month, &day, &hour, &minute);
+
+    if((year <= 2100 && year > 0) && (month <= 12 && month > 0) && (day <= 31 && day > 0) && (hour <= 23 && hour >= 0) && (minute <= 59 && minute >= 0)){
+        return 1;
+    }else{
+        return 0;
+    }
+    
+}
+
 void reservasi() {
+    system("cls");
+    tampil();
     char str_meja[9];
     int meja;
     char jadwal[50];
@@ -1072,7 +1092,12 @@ void reservasi() {
         return;
     }
     printf("Masukkan jadwal (YYYY-MM-DD HH:MM): ");
-    fgets(jadwal, sizeof(jadwal), stdin); trim(jadwal);
+    fgets(jadwal, sizeof(jadwal), stdin); 
+    if(cek_format_tanggal(jadwal) == 0){
+        printf("Pastikan format tanggal benar\n");
+        return;
+    }
+    trim(jadwal);
     strcpy(data[idx].status, "booked");
     strcpy(data[idx].jadwal, jadwal);
     save();
@@ -1080,6 +1105,8 @@ void reservasi() {
 }
 
 void cancel() {
+    system("cls");
+    tampil();
     char str_meja[9];
     int meja;
     printf("Nomor meja: ");
@@ -1099,6 +1126,8 @@ void cancel() {
 }
 
 void ganti() {
+    system("cls");
+    tampil();
     char str_lama[9], str_baru[9];
     int lama, baru;
 

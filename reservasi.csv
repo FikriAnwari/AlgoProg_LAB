@@ -1,5 +1,5 @@
-﻿nomor_meja;kapasitas;tipe_meja;ruangan;status;jadwal
-1;4;meja kecil;indoor;available;-
+nomor_meja;kapasitas;tipe_meja;ruangan;status;jadwal
+1;4;meja kecil;indoor;booked;2205-29-10 08:00
 2;4;meja kecil;indoor;available;-
 3;4;meja kecil;indoor;available;-
 4;4;meja kecil;indoor;available;-
@@ -22,5 +22,5 @@
 21;2;meja kecil;outdoor;available;-
 22;2;meja kecil;outdoor;available;-
 23;2;meja kecil;outdoor;available;-
-24;2;meja kecil;outdoor;available;-
+24;2;meja kecil;outdoor;booked;2025-04-04 12:00
 25;2;meja kecil;outdoor;available;-
