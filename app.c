@@ -733,7 +733,7 @@ void urutkan_menu(struct Items items[], int jumlah_baris_file, char tipe, char u
         }else if(urutan == 'd' || urutan == 'D'){
             for(int i = 0; i < jumlah_baris_file - 1; i++){
                     for(int j = i+1; j < jumlah_baris_file; j++){
-                        if(strcasecmp(items[j].nama, items[i].nama) < 0) {
+                        if(strcasecmp(items[j].nama, items[i].nama) > 0) {
                             struct Items temp = items[i];
                             items[i] = items[j];
                             items[j] = temp;
