@@ -162,30 +162,7 @@ void cetak_items(struct Items items[], int jumlah, char *label){
     cetak_garis("=", correction);
     printf("+\n");
 }
-/*
-//nanti dulu udah 1 jam gak kelar2 
-void format_rupiah(char teks[], int angka){
 
-    char buffer[9999];
-    sprintf(buffer, "%d", angka);
-    int panjang = strlen(buffer);
-
-    //membalik angkanya biar enak
-    char temp[9999];
-    for(int i = panjang - 1; i >= 0; i--){
-        if((i-1) % 3 == 0){//000,00051
-            // printf(",");
-            printf("%c", buffer[i]);
-        }else{
-            printf("%c", buffer[i]);
-        }
-        // temp[i] = buffer[panjang - 1 - i];
-    }
-
-    // printf("%s", temp);
-
-}
-*/
 int cek_alfabet_dan_numeric(char teks[], int panjang){
 
     int counter = 0;
@@ -598,23 +575,22 @@ void tambah_pesanan(struct Items items[], int jumlah_baris_file, struct Items pe
                 pesanan[*jumlah_pesanan-1].porsi = porsi;
 
                 for(int i = 0; i < jumlah_baris_file; i++){
-                    char str_nama_temp[9999];
-                    char str_items_nama_temp[9999];
-                    strcpy(str_nama_temp, str_nama);
-                    strcpy(str_items_nama_temp, items[i].nama);
-                    teks_casting(str_nama_temp, strlen(str_nama_temp), 'l');
-                    teks_casting(str_items_nama_temp, strlen(str_items_nama_temp), 'l');
+                    // printf("%s\n", str_nama);
+                    // printf("%s\n", items[i].nama);
+                    // printf("%d\n", jumlah_baris_file);
+                    
+                    if(strcasecmp(str_nama, items[i].nama) == 0){
+                        printf("Masuk kedalam sini\n");
+                        printf("nama yg input = %s\n", str_nama);
+                        printf("nama yg ada di items = %s\n", items[i].nama);
+                        printf("porsi yg di input = %d\n", porsi);
+                        printf("harga yg ada di items = %d\n", items[i].harga);
 
-                    printf("%s\n", str_nama_temp);
-                    printf("%s\n", str_items_nama_temp);
-                    printf("%d\n", items[i].harga);
-
-                    if(strcmp(str_nama_temp, str_items_nama_temp) == 0){
                         pesanan[*jumlah_pesanan-1].harga = items[i].harga;
                         pesanan[*jumlah_pesanan-1].harga_total = items[i].harga * porsi;
+                        return;
                     }
-        
-                    return;
+                    
                 }
             }else{
                 printf("(Input hanya berupa Numeric)\n");
@@ -1221,19 +1197,21 @@ int main(){
             printf("(4)Ubah/Hapus/Konfirmasi Pesanan\n");
             printf("(5)Keluar\n");
 
-            if(strcmp(dibeli[0].nama, "") != 0){
-                int h = 0;
-                printf("\n");
-                printf("==PESANAN ANDA==\n");
-                for(int i = 0; i < jumlah_pesanan; i++){
-                    printf("%d. %s x %d = Rp%d\n", i+1, dibeli[i].nama, dibeli[i].porsi, dibeli[i].harga_total);
-                    h += dibeli[i].harga_total;
+            if(strcasecmp(dibeli[0].nama, "") != 0){ //memastikan tidak geprint kalau tidak ada yg dibeli
+                if(jumlah_pesanan > 0){
+                    int h = 0;
+                    printf("\n");
+                    printf("==PESANAN ANDA==\n");
+                    for(int i = 0; i < jumlah_pesanan; i++){
+                        printf("%d. %s x %d = Rp%d\n", i+1, dibeli[i].nama, dibeli[i].porsi, dibeli[i].harga_total);
+                        h += dibeli[i].harga_total;
+                    }
+                    printf("Total = Rp%d\n", h);
+                    printf("\n");
+                    printf("Silahkan pilih 4 untuk konfirmasi\n");
                 }
-                printf("Total = Rp%d\n", h);
-                printf("\n");
-                printf("Silahkan pilih 4 untuk konfirmasi\n");
-            }
-
+            }    
+            
             printf("pilih:");
             fgets(str_input, sizeof(str_input), stdin);
             str_input[strcspn(str_input, "\n")] = '\0';
@@ -1254,6 +1232,10 @@ int main(){
                     add_harga_pesanan_dari_porsi(items, jumlah_baris_file, dibeli, jumlah_pesanan);
                     printf("\n");
                 }else if(input == 4){
+                    if(jumlah_pesanan <= 0){//memastikan tidak masuk menu ini kalau memang belum pesan / pesanannya kosong
+                        continue;
+                    }
+
                     edit_hapus_konfirmasi_pesanan(items, jumlah_baris_file, dibeli, &jumlah_pesanan, nama_login);
                     printf("\n");
                     printf("==PESANAN ANDA==\n");
